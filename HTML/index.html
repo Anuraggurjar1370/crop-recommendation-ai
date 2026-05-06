@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Crop AI</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 30px;
+            width: 350px;
+            text-align: center;
+            color: white;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        h2 {
+            margin-bottom: 20px;
+        }
+
+        input {
+            width: 90%;
+            padding: 10px;
+            margin: 6px;
+            border-radius: 10px;
+            border: none;
+            outline: none;
+        }
+
+        input:focus {
+            box-shadow: 0 0 5px #fff;
+        }
+
+        button {
+            margin-top: 10px;
+            padding: 12px;
+            width: 95%;
+            border: none;
+            border-radius: 12px;
+            background: #00ffcc;
+            color: black;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: #00ccaa;
+        }
+
+        #result {
+            margin-top: 20px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .loader {
+            display: none;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="card">
+    <h2> Crop AI Predictor</h2>
+
+    <form id="form">
+        <input type="number" id="N" placeholder="Nitrogen" required>
+        <input type="number" id="P" placeholder="Phosphorus" required>
+        <input type="number" id="K" placeholder="Potassium" required>
+        <input type="number" id="temperature" placeholder="Temperature" required>
+        <input type="number" id="humidity" placeholder="Humidity" required>
+        <input type="number" id="ph" placeholder="pH" required>
+        <input type="number" id="rainfall" placeholder="Rainfall" required>
+
+        <button type="submit">Predict Crop</button>
+    </form>
+
+    <div class="loader" id="loader">⏳ Predicting...</div>
+
+    <div id="result"></div>
+</div>
+
+<script>
+document.getElementById("form").addEventListener("submit", async function(e) {
+    e.preventDefault();
+
+    const loader = document.getElementById("loader");
+    const resultDiv = document.getElementById("result");
+
+    loader.style.display = "block";
+    resultDiv.innerText = "";
+
+    const data = {
+        N: Number(document.getElementById("N").value),
+        P: Number(document.getElementById("P").value),
+        K: Number(document.getElementById("K").value),
+        temperature: Number(document.getElementById("temperature").value),
+        humidity: Number(document.getElementById("humidity").value),
+        ph: Number(document.getElementById("ph").value),
+        rainfall: Number(document.getElementById("rainfall").value)
+    };
+
+    try {
+        const response = await fetch("http://127.0.0.1:5000/predict", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+
+        loader.style.display = "none";
+        resultDiv.innerText = " Recommended Crop: " + result.recommended_crop;
+
+    } catch (error) {
+        loader.style.display = "none";
+        resultDiv.innerText = "❌ Error connecting to server";
+    }
+});
+</script>
+
+</body>
+</html>
